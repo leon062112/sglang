@@ -26,6 +26,7 @@ from sglang.srt.runtime_context import get_parallel
 from sglang.srt.server_args import set_global_server_args_for_scheduler
 
 from ..mock_server_args import make_mock_server_args
+from .dense_attention import make_single_gpu_parallel_state
 
 _parallel_override = get_parallel().override(attn_tp_size=1)
 _parallel_override.__enter__()
@@ -300,6 +301,7 @@ class MockMLAModelRunner(ModelRunner):
         )
         self.token_to_kv_pool_allocator = SimpleNamespace(page_size=case.page_size)
         self.attn_cp_size = 1
+        self.ps = make_single_gpu_parallel_state()
         self.attention_chunk_size = None
         self.hisparse_coordinator = None
         self.init_new_workspace = False

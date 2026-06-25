@@ -33,6 +33,7 @@ from .dense_attention import (
     _make_forward_batch,
     _split_by_lens,
     _token_loc,
+    make_single_gpu_parallel_state,
 )
 
 # Unit tests run without distributed initialization. DSA context-parallel probes
@@ -393,6 +394,7 @@ class DSAMockModelRunner(ModelRunner):
         )
         self.token_to_kv_pool_allocator = SimpleNamespace(page_size=case.page_size)
         self.attn_cp_size = 1
+        self.ps = make_single_gpu_parallel_state()
         self.attention_chunk_size = None
         self.hisparse_coordinator = None
         self.init_new_workspace = False

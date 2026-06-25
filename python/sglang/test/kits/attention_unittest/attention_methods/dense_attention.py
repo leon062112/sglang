@@ -7,6 +7,7 @@ import torch.nn.functional as F
 from torch import nn
 
 from sglang.srt.configs.model_config import AttentionArch
+from sglang.srt.distributed.parallel_state_wrapper import ParallelState
 from sglang.srt.layers.attention.attention_registry import ATTENTION_BACKENDS
 from sglang.srt.layers.radix_attention import RadixAttention
 from sglang.srt.mem_cache.memory_pool import MHATokenToKVPool, ReqToTokenPool
@@ -28,6 +29,30 @@ from ..mock_server_args import make_mock_server_args
 # attention tensor-parallel degree should see the single-rank default.
 _parallel_override = get_parallel().override(attn_tp_size=1)
 _parallel_override.__enter__()
+
+
+def make_single_gpu_parallel_state() -> ParallelState:
+    return ParallelState(
+        tp_rank=0,
+        tp_size=1,
+        pp_rank=0,
+        pp_size=1,
+        dp_rank=0,
+        dp_size=1,
+        attn_tp_rank=0,
+        attn_tp_size=1,
+        attn_cp_rank=0,
+        attn_cp_size=1,
+        attn_dp_rank=0,
+        attn_dp_size=1,
+        moe_ep_rank=0,
+        moe_ep_size=1,
+        moe_dp_rank=0,
+        moe_dp_size=1,
+        dcp_size=1,
+        gpu_id=0,
+    )
+
 
 DEFAULT_HEAD_DIM = 16
 DEFAULT_HIDDEN_SIZE = 64
@@ -397,6 +422,7 @@ class MockModelRunner(ModelRunner):
             get_kvcache=lambda: self.token_to_kv_pool,
         )
         self.attn_cp_size = 1
+        self.ps = make_single_gpu_parallel_state()
         self.attention_chunk_size = None
         self.hisparse_coordinator = None
         self.init_new_workspace = False
