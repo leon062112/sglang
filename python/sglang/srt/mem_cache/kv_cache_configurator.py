@@ -1196,9 +1196,7 @@ class KVCacheConfigurator:
         max_num_reqs = self.server_args.max_running_requests
         if max_num_reqs is not None:
             requested_per_worker = max_num_reqs // (
-                self.server_args.dp_size
-                if self.server_args.enable_dp_attention
-                else 1
+                self.server_args.dp_size if self.server_args.enable_dp_attention else 1
             )
             max_num_reqs = min(requested_per_worker, token_capacity // 2)
         else:
