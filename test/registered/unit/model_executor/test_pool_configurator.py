@@ -36,6 +36,10 @@ def mock_cpu_env(kv_size=2, tp_size=1, swa_eviction_interval=4):
         yield
 
 
+class _MockModelConfig:
+    pass
+
+
 def _make_model_runner(
     *,
     num_kv_heads=4,
@@ -73,13 +77,13 @@ def _make_model_runner(
     mr.num_effective_layers = num_layers
     mr.start_layer = 0
     mr.end_layer = num_layers
-    mr.dp_size = 1
+    mr.attn_dp_size = 1
     mr.page_size = page_size
     mr.mambaish_config = mambaish_config
     mr.is_hybrid_swa = is_hybrid_swa
     mr.sliding_window_size = sliding_window_size
 
-    mc = SimpleNamespace()
+    mc = _MockModelConfig()
     mc.head_dim = head_dim
     mc.v_head_dim = v_head_dim
     mc.is_hybrid_swa = is_hybrid_swa
